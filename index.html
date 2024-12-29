@@ -3,65 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Top Tweets - Most Liked Videos</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f9;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-    }
-    header {
-      background-color: #1DA1F2;
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
-    .video-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-top: 20px;
-    }
-    .video-item {
-      margin: 10px;
-      width: 300px;
-      background-color: white;
-      border-radius: 10px;
-      padding: 10px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-    video {
-      max-width: 100%;
-      border-radius: 5px;
-      margin-top: 15px;
-    }
-    h3 {
-      font-size: 18px;
-      color: #333;
-    }
-    .pagination {
-      margin-top: 20px;
-      padding: 10px;
-    }
-    .page-button {
-      background-color: #1DA1F2;
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .page-button:hover {
-      background-color: #0a85c1;
-    }
-  </style>
+  <title>Top X - Most Liked Videos</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
   <header>
-    <h1>Top Tweets - Most Liked Videos</h1>
+    <h1>Top X - Most Liked Videos</h1>
   </header>
 
   <div id="video-container" class="video-container"></div>
@@ -69,58 +16,6 @@
     <button class="page-button" id="nextButton">Next</button>
   </div>
 
-  <script>
-    const pageSize = 10;
-    let currentPage = 1;
-
-    // 서버에서 JSON 데이터를 받아오기
-    fetch('https://your-server.com/get-top-tweets') // 서버의 API 주소로 변경
-      .then(response => response.json())
-      .then(data => {
-        data.sort((a, b) => b.likes - a.likes);  // 좋아요 수 기준 내림차순 정렬
-
-        // 페이지 렌더링 함수
-        function renderPage(page) {
-          const start = (page - 1) * pageSize;
-          const end = start + pageSize;
-          const pageData = data.slice(start, end);
-
-          // 동영상 HTML 생성
-          const videoContainer = document.getElementById('video-container');
-          videoContainer.innerHTML = ''; // 이전 페이지 내용 제거
-
-          pageData.forEach(video => {
-            const videoHTML = `
-              <div class="video-item">
-                <h3>${video.username}</h3>
-                <p>Likes: ${video.likes}</p>
-                <video controls>
-                  <source src="${video.videoUrl}" type="video/mp4">
-                  Your browser does not support the video tag.
-                </video>
-                <br>
-                <button onclick="window.location.href='${video.videoUrl}'">Watch Video</button>
-              </div>
-            `;
-            videoContainer.innerHTML += videoHTML;
-          });
-        }
-
-        // 페이지 렌더링
-        renderPage(currentPage);
-
-        // Next 버튼 클릭 시 페이지 변경
-        document.getElementById('nextButton').addEventListener('click', () => {
-          if ((currentPage * pageSize) < data.length) {
-            currentPage++;
-            renderPage(currentPage);
-          }
-        });
-      })
-      .catch(error => {
-        console.error('Error fetching video data:', error);
-      });
-  </script>
-
+  <script src="script.js"></script>
 </body>
 </html>
