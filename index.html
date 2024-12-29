@@ -1,21 +1,64 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Top X - Most Liked Videos</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <header>
-    <h1>Top X - Most Liked Videos</h1>
-  </header>
+const pageSize = 10;
+let currentPage = 1;
 
-  <div id="video-container" class="video-container"></div>
-  <div class="pagination">
-    <button class="page-button" id="nextButton">Next</button>
-  </div>
+// X API 호출 (여기서는 예시 URL 사용)
+fetch('https://api.x.com/2/tweets/search/recent?query=has:video&max_results=100', {
+  headers: {
+    'Authorization': `Bearer YOUR_BEARER_TOKEN` // X API 인증 토큰을 입력해야 합니다.
+  }
+})
+  .then(response => response.json())
+  .then(data => {
+    console.log(data); // API 응답 확인용 콘솔 로그
 
-  <script src="script.js"></script>
-</body>
-</html>
+    // 실제 동영상 URL이 어디에 포함되어 있는지 확인하고 수정해야 합니다.
+    const tweets = data.data || [];
+    
+    // 좋아요 순으로 정렬
+    const sortedTweets = tweets.sort((a, b) => b.public_metrics.like_count - a.public_metrics.like_count);
+
+    // 페이지 렌더링 함수
+    function renderPage(page) {
+      const start = (page - 1) * pageSize;
+      const end = start + pageSize;
+      const pageData = sortedTweets.slice(start, end);
+
+      const videoContainer = document.getElementById('video-container');
+      videoContainer.innerHTML = '';  // 이전 페이지 내용 초기화
+
+      pageData.forEach(tweet => {
+        // 동영상 URL을 실제로 어떻게 받아오는지 확인하고 처리
+        const videoUrl = tweet.media ? tweet.media[0].url : null;
+
+        if (videoUrl) {
+          const videoHTML = `
+            <div class="video-item">
+              <h3>Posted by: ${tweet.author_id}</h3>
+              <p>Likes: ${tweet.public_metrics.like_count}</p>
+              <video controls>
+                <source src="${videoUrl}" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+              <br>
+              <button onclick="window.location.href='${videoUrl}'">Watch Video</button>
+            </div>
+          `;
+          videoContainer.innerHTML += videoHTML;
+        }
+      });
+    }
+
+    // 첫 페이지 렌더링
+    renderPage(currentPage);
+
+    // 페이지 변경 처리
+    document.getElementById('nextButton').addEventListener('click', () => {
+      if ((currentPage * pageSize) < sortedTweets.length) {
+        currentPage++;
+        renderPage(currentPage);
+      }
+    });
+  })
+  .catch(error => {
+    console.error('Error fetching video data:', error);
+  });
