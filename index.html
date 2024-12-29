@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Top Tweets - Trending Videos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+    header {
+      background-color: #1DA1F2;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    .tweet-card {
+      background-color: white;
+      margin: 20px;
+      padding: 15px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .tweet-card p {
+      font-size: 18px;
+    }
+    .pagination {
+      margin-top: 20px;
+    }
+    .pagination button {
+      background-color: #1DA1F2;
+      color: white;
+      border: none;
+      padding: 10px;
+      margin: 0 5px;
+      cursor: pointer;
+    }
+    .pagination button:disabled {
+      background-color: #ccc;
+    }
+    video {
+      max-width: 100%;
+      border-radius: 5px;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Top Tweets - Trending Videos</h1>
+  </header>
+
+  <div id="tweets-container"></div>
+  
+  <div class="pagination">
+    <button id="prev-btn" disabled>Previous</button>
+    <button id="next-btn">Next</button>
+  </div>
+
+  <script>
+    let currentPage = 1;
+    const tweetsPerPage = 10;
+    const totalTweets = 100; // 실제 트윗 데이터에 맞게 수정
+
+    async function fetchTweets(page) {
+      const data = {
+        tweets: generateTweets(page),
+        totalPages: Math.ceil(totalTweets / tweetsPerPage)
+      };
+      displayTweets(data.tweets);
+      handlePagination(data.totalPages);
+    }
+
+    function generateTweets(page) {
+      const tweets = [];
+      for (let i = (page - 1) * tweetsPerPage + 1; i <= page * tweetsPerPage; i++) {
+        tweets.push({
+          user: `User${i}`,
+          text: `This is tweet #${i} with a trending video.`,
+          tweetUrl: `https://twitter.com/someuser/status/${i}`, // 트위터 링크
+          likes: Math.floor(Math.random() * 1000), // 좋아요 수
+          media: i % 2 === 0 ? `https://somevideo.com/video${i}.mp4` : null, // 동영상 URL
+        });
+      }
+      const videoTweets = tweets.filter(tweet => tweet.media !== null);
+      videoTweets.sort((a, b) => b.likes - a.likes);
+      return videoTweets;
+    }
+
+    function displayTweets(tweets) {
+      const tweetsContainer = document.getElementById('tweets-container');
+      tweetsContainer.innerHTML = '';
+      
+      tweets.forEach(tweet => {
+        const tweetCard = document.createElement('div');
+        tweetCard.classList.add('tweet-card');
+        
+        const tweetHTML = `
+          <p><strong>${tweet.user}</strong></p>
+          <p>${tweet.text}</p>
+          <p><strong>Likes:</strong> ${tweet.likes}</p>
+          <a href="video.html?tweetId=${tweet.tweetUrl}" target="_blank">
+            <video controls>
+              <source src="${tweet.media}" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+          </a>
+        `;
+        
+        tweetCard.innerHTML = tweetHTML;
+        tweetsContainer.appendChild(tweetCard);
+      });
+    }
+
+    function handlePagination(totalPages) {
+      const prevBtn = document.getElementById('prev-btn');
+      const nextBtn = document.getElementById('next-btn');
+      
+      prevBtn.disabled = currentPage === 1;
+      nextBtn.disabled = currentPage === totalPages;
+
+      prevBtn.onclick = () => {
+        if (currentPage > 1) {
+          currentPage--;
+          fetchTweets(currentPage);
+        }
+      };
+
+      nextBtn.onclick = () => {
+        if (currentPage < totalPages) {
+          currentPage++;
+          fetchTweets(currentPage);
+        }
+        // 페이지 맨 위로 스크롤 이동
+        window.scrollTo(0, 0);
+      };
+    }
+
+    fetchTweets(currentPage);
+  </script>
+
+</body>
+</html>
